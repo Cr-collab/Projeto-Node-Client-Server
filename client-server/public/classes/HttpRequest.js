@@ -37,18 +37,18 @@ class HttpRequest
 
     ajax.onerror = event =>
     {
-        reject(e)
+        reject(e);
     }
 
 
     ajax.onload = event => {
  /// evento de resposta
-        let obj = { };
+        let obj = {};
 
     try
     // caso o json seja invalido
     {
-         obj =JSON.parse(ajax.responseText);
+         obj = JSON.parse(ajax.responseText);
          // objeto com a informação retornada do servidor
     }catch(e)
     {
@@ -60,7 +60,9 @@ class HttpRequest
 
     };
 
-  ajax.send();
+    ajax.setRequestHeader('Content-Type', 'application/json')
+
+    ajax.send(JSON.stringify(params));
   // camndo a solicitação ajax
 
 

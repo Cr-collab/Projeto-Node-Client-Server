@@ -113,7 +113,7 @@ class User
                     this[name] = new Date(json[name])
                   break;
                   default:
-                    this[name] =json[name]
+                    if(name.substring(0,1) === '_')this[name] =json[name]
 
               }
              
@@ -123,56 +123,47 @@ class User
             
         static getUsersStorage()
         {
-            let users = [];
-            if(localStorage.getItem("users"))
-            {
-            users = JSON.parse(localStorage.getItem("users")) 
-            }
-            return users
+            return HttpRequest.get('/users');
         }
 
 
-     getNewId()
-     {
-         let UsersId = parseInt(localStorage.getItem("UsersId"));
-           
-       if(!UsersId.id)  UsersId = 0;
-       UsersId++;
 
-       localStorage.setItem("UserId" , UsersId)
-       return UsersId
+     toJSON()
+     {
+         let json = {};
+
+         Object.keys(this).forEach(key =>
+            {
+                if(this[key] !== undefined) json[key] = this[key];
+
+            });
+            return json;
 
      }
 
     save()// esse metodo ele vai saber como é que salva o nosso usuario no storage 
     {
+
+        return  new Promise ((resolve, reject)=>
+        {
+            let promise;
                 
-           
-            
-            let users = User.getUsersStorage();
-
-            if(this._id > 0 )
-            {
-               users.map(u=>{
-                     if(u._id == this.id)
-                     {
-                        Object.assign(u, this)
-                     }
-
-                   return u;
-               })
-
+            if(this.id){
+               promise = HttpRequest.put(`/users/${this.id}`, this.toJSON())
             }else
             {
-                 this._id = this.getNewId()
-
-                 users.push(this);
-
-                 
+             promise = HttpRequest.post(`/users`, this.toJSON())
             }
-
-
-            localStorage.setItem("users",JSON.stringify(users))
+             
+             promise.then(data =>
+                 {
+                     this.loadFromJSON(data);
+                     resolve(this);
+                 }).catch(e=>{
+                     reject(e)
+                 })
+        });
+        
 
            
 
@@ -181,19 +172,8 @@ class User
 
     remove()
     {
-        let users = User.getUsersStorage();
-
-
-        users.forEach((userData, index) => {
+       return HttpRequest.delete(`/users/${this.id}`, this.toJSON())
             
-             if(this._id == userData._id)
-             {
-                  users.splice(index, 1)
-             }
-
-        });
-
-        localStorage.setItem("users",JSON.stringify(users))
     }
 
 

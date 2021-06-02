@@ -7,8 +7,8 @@ const expressValidator = require("express-validator");
 let app = express();
 
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true,limit:'50mb' }));
+app.use(express.json({limit:'50mb'}));
 app.use(expressValidator());
 
 consign().include('routes').include('utils').into(app);
